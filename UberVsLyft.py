@@ -1,8 +1,13 @@
+import uuid
 from flask import Flask
 import requests
+from pymongo import MongoClient
+from bson import ObjectId
 import json
 from flask import jsonify
 from flask import request
+from flask import Response
+from flask import json
 from requests.auth import HTTPBasicAuth
 import numpy as np
 from collections import OrderedDict
@@ -20,6 +25,164 @@ lyft_roundtrip={}
 uber_roundtrip={}
 check_roundtrip=False
 
+client = MongoClient('mongodb://test:test@ds127968.mlab.com:27968/cmpe273ritvick')
+db = client['cmpe273ritvick']
+
+collection = db['testtable']
+locationsCollection = db['locations']
+
+class Encoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, ObjectId):
+            return str(obj)
+        else:
+            return obj
+
+
+@app.route('/', methods=['GET'])
+def loadIndex():
+    a=1;
+    
+@app.route('/locations', methods=['POST'])
+def store_locations():
+    global locationsCollection
+    requestData = request.get_json(force=True)
+
+        
+    name= requestData["name"]
+    address = requestData["address"]
+    city = requestData["city"]
+    state = requestData["state"]
+    zipcode = requestData["zip"]
+    
+    obj1 = UbervsLyft()
+
+    addressString=address + " " + city + " " + state + " " + zipcode
+
+    parameters = obj1.url_parameters(addressString)
+
+    coordinates = obj1.get_coordinates(parameters)
+
+    # Mongo Insert here
+
+    latlong = coordinates.split(",")
+
+
+
+    coordinate = {}
+    coordinate["lat"] = latlong[0]
+    coordinate["lng"] = latlong[1]
+
+    responseData = {}
+    responseData["id"] =  str(uuid.uuid1())
+    responseData["address"] = address
+    responseData["city"] = city
+    responseData["state"] = state
+    responseData["zip"] = zipcode
+    responseData["coordinate"] = coordinate
+    responseData["name"] = name
+
+    insertData = responseData
+    inserted_id = locationsCollection.insert_one(insertData).inserted_id
+
+    return Response(response = json.dumps(responseData, cls=Encoder))
+
+@app.route('/locations/<locationId>', methods=['GET'])
+def fetchLocation(locationId):
+    global locationsCollection
+    doc = locationsCollection.find_one({
+        "id" : locationId
+        })
+    return Response(response = json.dumps(doc, cls=Encoder))
+
+@app.route('/locations/<locationId>', methods=['PUT'])
+def updateLocation(locationId):
+    global locationsCollection
+    doc = locationsCollection.find_one({
+        "id" : locationId
+        })
+
+    requestData = request.get_json(force=True)
+
+    doc["name"] = requestData["name"]
+
+    locationsCollection.update({'_id':doc["_id"]}, {"$set": doc}, upsert=False)
+
+    return Response(response = json.dumps(doc, cls=Encoder))
+
+@app.route('/locations/<locationId>', methods=['DELETE'])
+def deleteLocation(locationId):
+    global locationsCollection
+    doc = locationsCollection.find_one({
+        "id" : locationId
+        })
+    locationsCollection.delete_many({"id": locationId})
+    return Response(response = json.dumps(doc, cls=Encoder))
+
+
+@app.route('/trips', methods=['POST'])
+def calculateTrip():
+    global location_counter
+    global co_ordinates_dict
+
+    requestData = request.get_json(force=True)
+
+    startId = requestData["start"].replace("/locations/","")
+    location_counter = 0
+    print(startId)
+    startDoc = locationsCollection.find_one({
+        "id" : startId
+        })
+
+    
+
+    #print(startDoc["name"])
+    co_ordinates_dict[startDoc["name"]] = startDoc["coordinate"]["lat"] + "," + startDoc["coordinate"]["lng"]
+    location_counter = location_counter + 1
+
+    for i in range (0, len(requestData["others"])):
+        location_counter = location_counter + 1
+        otherId = requestData["others"][i].replace("/locations/","")
+        otherDoc = locationsCollection.find_one({
+        "id" : otherId
+        })
+        co_ordinates_dict[otherDoc["name"]] = otherDoc["coordinate"]["lat"] + "," + otherDoc["coordinate"]["lng"]
+        location_counter = location_counter + 1
+
+    for i in range(0,location_counter+1):
+        lyftmatrix.append([])
+        ubermatrix.append([])
+    
+    ubermatrix[0].append('')
+    lyftmatrix[0].append('')
+    
+    obj = UbervsLyft()
+
+    for i in range(0,location_counter):
+        #print "i"
+        #print i
+        ubermatrix[0].append(co_ordinates_dict.keys()[i])
+        lyftmatrix[0].append(co_ordinates_dict.keys()[i])
+    
+    for i in range(0,location_counter):    
+        ubermatrix[i+1].append(co_ordinates_dict.keys()[i])
+        lyftmatrix[i+1].append(co_ordinates_dict.keys()[i])
+        
+    lyft_string=obj.lyft_cost()
+    
+    uber_string=obj.uber_cost()
+    
+    result_string=""
+    result_string=obj.Djikstra()
+    
+    del lyftmatrix[:]
+    del ubermatrix[:]
+    co_ordinates_dict.clear()
+
+    return result_string
+
+    return Response(response = json.dumps(co_ordinates_dict, cls=Encoder))
+        
 @app.route('/form', methods=['POST'])
 def form_matrix():
     global lyft_string
@@ -388,7 +551,9 @@ class UbervsLyft:
                     uber_path=uber_path+"-"+ubermatrix[0][1]
                     uber_total_cost=uber_total_cost+uber_roundtrip.values()[i]
         
-            
+        
+                   
+
         final_string="\nBy Lyft, Cost:"+str(lyft_total_cost)+"\nPath:"+lyft_path+"\nBy Uber,Cost:"+str(uber_total_cost)+"\nPath:"+uber_path
         return final_string
      

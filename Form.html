@@ -1,15 +1,33 @@
+<!DOCTYPE html>
 <html>
-<header><h2> Trip Planner </h2></header>
+<title> Uber Vs Lyft Price Estimator </title>
+<head>
+<style>
+body {
+    background-image: url("http://static2.bigstockphoto.com/thumbs/4/2/1/large1500/124601507.jpg");no-repeat center center fixed stretch; 
+     background-repeat: no-repeat;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    margin: 0;
+    text-align: center;
+}
+</style>
+</head>
 <body>
+	<header><h1><center> Trip Planner </center> </h1></header>
 	<form name="Coordinates" action="http://localhost:5000/form" method="POST">
-	Starting location<input type="text" name="starting_location"> <br>
-	First location<input type="text" name="first"> <br>
+	<p>Starting location<input type="text" name="starting_location"><br>
+	<p>First location<input type="text" name="first"><br>
 	<div id="div">
  	<button onclick ="appendRow()" value="Add Row">+</button>
 	<button onclick ="delRow()" value="Del Row">-</button>
  	</div>
 	RoundTrip<input type="checkbox" name="roundtrip">
 	<input type="submit" name="submit" value="Submit">
+	<link rel="stylesheet" type="text/css" href="/stylesheets/main.css" />
+
 	
 <script>
 var x=1
@@ -21,7 +39,7 @@ function appendRow()
 function delRow()
 {
    var d = document.getElementById('div');
-   d.innerHTML -= "<input type='text' name='tst"+ x++ +"'><br >";
+   d.innerHTML -= "<input type='text' name='tst"+ x +"'><br >";
 }
 </script>
 </form>

@@ -15,9 +15,19 @@ lyft_string=""
 uber_string=""
 String=""
 ubermatrix=[]
+ubermatrix1=[]
+ubermatrix2=[]
+
 lyftmatrix=[]
+lyftmatrix1=[]
+lyftmatrix2=[]
 lyft_roundtrip={}
 uber_roundtrip={}
+lyft_roundtrip_time={}
+lyft_roundtrip_miles={}
+uber_roundtrip_time={}
+uber_roundtrip_miles={}
+
 check_roundtrip=False
 
 @app.route('/form', methods=['POST'])
@@ -28,6 +38,8 @@ def form_matrix():
     global co_ordinates_dict
     global ubermatrix
     global lyftmatrix
+    global lyftmatrix1
+    global lyftmatrix2
     global check_roundtrip
     global String
     check_roundtrip=True
@@ -113,9 +125,17 @@ def form_matrix():
     for i in range(0,location_counter+1):
         lyftmatrix.append([])
         ubermatrix.append([])
+        ubermatrix1.append([])
+        ubermatrix2.append([])
+        lyftmatrix1.append([])
+        lyftmatrix2.append([])
     
     ubermatrix[0].append('')
+    ubermatrix1[0].append('')
+    ubermatrix2[0].append('')
     lyftmatrix[0].append('')
+    lyftmatrix1[0].append('')
+    lyftmatrix2[0].append('')
     
     #print co_ordinates_dict
     #print "location counter="
@@ -124,11 +144,19 @@ def form_matrix():
         #print "i"
         #print i
         ubermatrix[0].append(co_ordinates_dict.keys()[i])
+        ubermatrix1[0].append(co_ordinates_dict.keys()[i])
+        ubermatrix2[0].append(co_ordinates_dict.keys()[i])
         lyftmatrix[0].append(co_ordinates_dict.keys()[i])
+        lyftmatrix1[0].append(co_ordinates_dict.keys()[i])
+        lyftmatrix2[0].append(co_ordinates_dict.keys()[i])
     
     for i in range(0,location_counter):    
         ubermatrix[i+1].append(co_ordinates_dict.keys()[i])
+        ubermatrix1[i+1].append(co_ordinates_dict.keys()[i])
+        ubermatrix2[i+1].append(co_ordinates_dict.keys()[i])
         lyftmatrix[i+1].append(co_ordinates_dict.keys()[i])
+        lyftmatrix1[i+1].append(co_ordinates_dict.keys()[i])
+        lyftmatrix2[i+1].append(co_ordinates_dict.keys()[i])
         
     lyft_string=obj.lyft_cost()
     ##print "lyft_string"
@@ -137,6 +165,9 @@ def form_matrix():
     ##print lyftmatrix
     ##print "cost_check="
     ##print cost_check_dict
+    print lyftmatrix2
+    #print lyftmatrix1
+    #print lyftmatrix
     uber_string=obj.uber_cost()
     """#print lyftmatrix"""
     #print "uber string"
@@ -145,7 +176,11 @@ def form_matrix():
     result_string=obj.Djikstra()
     
     del lyftmatrix[:]
+    del lyftmatrix1[:]
+    del lyftmatrix2[:]
     del ubermatrix[:]
+    del ubermatrix1[:]
+    del ubermatrix2[:]
     co_ordinates_dict.clear()
     return result_string
     
@@ -180,6 +215,7 @@ class UbervsLyft:
         global cost_check_dict
         global location_counter
         global lyftmatrix
+        global lyftmatrix1
         global co_ordinates_dict
         global String
         lyft_token_url = "https://api.lyft.com/oauth/token"
@@ -192,6 +228,8 @@ class UbervsLyft:
             for j in range(0,location_counter):
                 if i==j:
                     lyftmatrix[i+1].append(1000)
+                    lyftmatrix1[i+1].append(1000)
+                    lyftmatrix2[i+1].append(1000)
                     
                 else:
                     #start_location_name=co_ordinates_dict.keys()[i]
@@ -208,8 +246,10 @@ class UbervsLyft:
                     lyft_cost_url="https://api.lyft.com/v1/cost?ride_type=lyft&start_lat="+start_co_lat+"&start_lng="+start_co_lng+"&end_lat="+end_co_lat+"&end_lng="+end_co_lng
                     lyft_cost_headers={'Authorization': "Bearer"+" "+access_lyft_token}
                     lyft_cost=requests.get(lyft_cost_url,headers=lyft_cost_headers)
+                    
                     lyft_cost_data=lyft_cost.json()
                     lyft_cost_data=lyft_cost_data['cost_estimates']
+                    #print lyft_cost_data
                     #print "lyft="
                     check=lyft_cost_data[0]['can_request_ride']
                     if not check:
@@ -217,6 +257,11 @@ class UbervsLyft:
                         String="\n Service not available for few Destinations "
                         lyftmatrix[i+1].append(10000)
                         continue
+                    estimated_distance_miles= lyft_cost_data[0]['estimated_distance_miles']
+                    print estimated_distance_miles
+                    estimated_duration_seconds =lyft_cost_data[0]['estimated_duration_seconds']
+                    estimated_duration_seconds=estimated_duration_seconds/60    
+                    print estimated_duration_seconds
                     max_cost=lyft_cost_data[0]['estimated_cost_cents_max']
                     max_cost=float(max_cost)/100
                     min_cost=lyft_cost_data[0]['estimated_cost_cents_min']
@@ -224,10 +269,15 @@ class UbervsLyft:
                     lyft_cost=(max_cost+min_cost)/2
                     #cost_check_dict[start_location_name+end_location_name]=lyft_cost
                     lyftmatrix[i+1].append(lyft_cost)
+                    lyftmatrix1[i+1].append(estimated_duration_seconds)
+                    lyftmatrix2[i+1].append(estimated_distance_miles)
+                    
                     
         if check_roundtrip:
             for i in range(1,location_counter+1):
-                lyft_roundtrip[lyftmatrix[i][0]]=lyftmatrix[i][1]          
+                lyft_roundtrip[lyftmatrix[i][0]]=lyftmatrix[i][1]
+                lyft_roundtrip_time[lyftmatrix1[i][0]]=lyftmatrix1[i][1]
+                lyft_roundtrip_miles[lyftmatrix2[i][0]]=lyftmatrix2[i][1]          
         return
         
     def uber_cost(self):
@@ -239,6 +289,8 @@ class UbervsLyft:
             for j in range(0,location_counter):
                 if i==j:
                     ubermatrix[i+1].append(1000)
+                    ubermatrix1[i+1].append(1000)
+                    ubermatrix2[i+1].append(1000)
                     
                 else:
                     flag=0
@@ -269,6 +321,9 @@ class UbervsLyft:
                             uber_type=k.get('localized_display_name')
                             if uber_type=="uberX":
                                 uber_estimate=k.get('estimate')
+                                uber_duration=k.get('duration')
+                                uber_duration=float(uber_duration)/60
+                                uber_distance=k.get('distance')
                         uber_average=uber_estimate.split('-')
                         uber_min_cost=""
                         uber_max_cost=""
@@ -281,10 +336,14 @@ class UbervsLyft:
                             uber_max_cost=uber_max_cost+k
                         uber_cost=(float(uber_max_cost)+float(uber_min_cost))/2
                         ubermatrix[i+1].append(uber_cost)
+                        ubermatrix1[i+1].append(uber_duration)
+                        ubermatrix2[i+1].append(uber_distance)
                     
         if check_roundtrip:
             for i in range(1,location_counter+1):
                 uber_roundtrip[ubermatrix[i][0]]=ubermatrix[i][1]
+                uber_roundtrip_time[ubermatrix1[i][0]]=ubermatrix1[i][1]
+                uber_roundtrip_miles[ubermatrix2[i][0]]=ubermatrix2[i][1]
             
         return 
         
@@ -296,6 +355,9 @@ class UbervsLyft:
         global co_ordinates_dict
         global uber_string
         global String
+        global lyft_roundtrip_time
+        global uber_roundtrip_time
+
         lyft_total_cost=0
         uber_total_cost=0
         lyft_path=""
@@ -306,6 +368,12 @@ class UbervsLyft:
         row=1
         min_value=1000
         interim_value=-1
+        lyft_total_time=0
+        lyft_total_miles=0
+        uber_total_time=0
+        uber_total_miles=0
+        final_output={"providers":[]}
+        
         
         #print "uber_string="
         #print uber_string
@@ -323,6 +391,8 @@ class UbervsLyft:
                 for i in range(1,location_counter+1):
                     if min_value>lyftmatrix[row][i]:
                         min_value=lyftmatrix[row][i]
+                        time=lyftmatrix1[row][i]
+                        miles=lyftmatrix2[row][i]
                         interim_value=i
                 if not lyft_path:
                     lyft_path=lyftmatrix[row][0]+"-"+lyftmatrix[0][interim_value]
@@ -330,6 +400,10 @@ class UbervsLyft:
                     lyft_path=lyft_path+"-"+lyftmatrix[0][interim_value]
                 if min_value!=1000:
                     lyft_total_cost=lyft_total_cost+min_value
+                    if time!=1000:
+                        lyft_total_time=lyft_total_time+time
+                    if miles!=1000:
+                        lyft_total_miles=lyft_total_miles+miles
                 for j in range(1,location_counter+1):
                     lyftmatrix[j][row]=1000
                 column=row
@@ -351,6 +425,12 @@ class UbervsLyft:
                         lyft_path=lyft_path+"-"+lyftmatrix[0][1]
                         lyft_total_cost=lyft_total_cost+lyft_roundtrip.values()[i]
                     
+                    if lyftmatrix1[0][interim_value]==lyft_roundtrip_time.keys()[i]:
+                         lyft_total_time=lyft_total_time+lyft_roundtrip_time.values()[i]
+
+                    if lyftmatrix2[0][interim_value]==lyft_roundtrip_miles.keys()[i]:
+                         lyft_total_miles=lyft_total_miles+lyft_roundtrip_miles.values()[i]        
+                    
         counter=0
         column=1
         row=1
@@ -366,6 +446,8 @@ class UbervsLyft:
                 for i in range(1,location_counter+1):
                     if min_value>ubermatrix[row][i]:
                         min_value=ubermatrix[row][i]
+                        ubertime=ubermatrix1[row][i]
+                        ubermiles=ubermatrix2[row][i]
                         interim_value=i
                 if not uber_path:
                     uber_path=ubermatrix[row][0]+"-"+ubermatrix[0][interim_value]
@@ -373,6 +455,10 @@ class UbervsLyft:
                     uber_path=uber_path+"-"+ubermatrix[0][interim_value]
                 if min_value!=1000:
                     uber_total_cost=uber_total_cost+min_value
+                    if ubertime!=1000:
+                        uber_total_time=uber_total_time+ubertime
+                    if ubermiles!=1000:
+                        uber_total_miles=uber_total_miles+ubermiles    
                 for j in range(1,location_counter+1):
                     ubermatrix[j][row]=1000
                 column=row
@@ -388,10 +474,33 @@ class UbervsLyft:
                     if ubermatrix[0][interim_value]==uber_roundtrip.keys()[i]:
                         uber_path=uber_path+"-"+ubermatrix[0][1]
                         uber_total_cost=uber_total_cost+uber_roundtrip.values()[i]
-        
+
+                    if ubermatrix1[0][interim_value]==uber_roundtrip_time.keys()[i]:
+                        uber_total_time=uber_total_time+uber_roundtrip_time.values()[i]  
+                    
+                    if ubermatrix2[0][interim_value]==uber_roundtrip_miles.keys()[i]:
+                        uber_total_miles=uber_total_miles+uber_roundtrip_miles.values()[i]   
+                
+                        
+                        
+        newstring={ "name" : "Uber",
+            "total_costs_by_cheapest_car_type" : str(uber_total_cost),
+            "currency_code": "USD",
+            "total_duration" : str(uber_total_time),
+            "duration_unit": "minute",
+            "total_distance" : str(uber_total_miles),
+            "distance_unit": "mile"}   
+        newstring1={"name" : "Lyft",
+            "total_costs_by_cheapest_car_type" : str(lyft_total_cost),
+            "currency_code": "USD",
+            "total_duration" : str(lyft_total_time),
+            "duration_unit": "minute",
+            "total_distance" : str(lyft_total_miles),
+            "distance_unit": "mile"}    
+        finallist=[newstring,newstring1]
             
-        final_string="By Lyft, Cost:"+str(lyft_total_cost)+"Path:"+lyft_path+"By Uber,Cost:"+str(uber_total_cost)+"Path:"+uber_path + String
-        return final_string
+        final_string="By Lyft, Cost:"+str(lyft_total_cost)+"Time in Minutes:"+str(lyft_total_time)+"Distance in Miles"+str(lyft_total_miles)+"Path:"+lyft_path+"By Uber,Cost:"+str(uber_total_cost)+"Time in Minutes:"+str(uber_total_time)+"Distance in Miles"+str(uber_total_miles)+"Path:"+uber_path + String
+        return finallist
      
             
         

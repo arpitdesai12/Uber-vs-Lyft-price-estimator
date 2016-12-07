@@ -1,0 +1,29 @@
+<html>
+<header><h2> Trip Planner </h2></header>
+<body>
+	<form name="Coordinates" action="http://localhost:5000/form" method="POST">
+	Starting location<input type="text" name="starting_location"> <br>
+	First location<input type="text" name="first"> <br>
+	<div id="div">
+ 	<button onclick ="appendRow()" value="Add Row">+</button>
+	<button onclick ="delRow()" value="Del Row">-</button>
+ 	</div>
+	RoundTrip<input type="checkbox" name="roundtrip">
+	<input type="submit" name="submit" value="Submit">
+	
+<script>
+var x=1
+function appendRow()
+{
+   var d = document.getElementById('div');
+   d.innerHTML += "<input type='text' name='tst"+ x++ +"'><br >";
+}
+function delRow()
+{
+   var d = document.getElementById('div');
+   d.innerHTML -= "<input type='text' name='tst"+ x++ +"'><br >";
+}
+</script>
+</form>
+</body>
+</html>

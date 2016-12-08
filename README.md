@@ -4,12 +4,12 @@ Lyfer is an innovative app to compare prices from Lyft and Uber for Multi destin
 
 ### Setup Instructions
   - Clong the repository https://github.com/arpitdesai12/Uber-vs-Lyft-price-estimator/tree/dev
-  - checkout the "dev" branch 
+  - checkout the "master" branch 
   - run with "python UberVsLyft.py"
-  - Open http://localhost or with IP of your machine, default port is 80
+  - Open http://localhost:3000 or with IP of your machine with port 3000
 
 ### Hosted Solution
-- Just visit http://cmpe273.ritvick.com and checkout the magic :)
+- Just visit http://cmpe273.ritvick.com:3000 and checkout the magic :)
  
 
 ### Contributors

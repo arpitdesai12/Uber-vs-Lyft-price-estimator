@@ -4,7 +4,6 @@ import json
 from flask import jsonify
 from flask import request
 from requests.auth import HTTPBasicAuth
-import numpy as np
 from collections import OrderedDict
 app=Flask(__name__)
 

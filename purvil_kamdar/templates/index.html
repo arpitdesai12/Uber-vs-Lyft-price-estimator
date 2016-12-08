@@ -95,7 +95,7 @@ http://www.templatemo.com/tm-475-holiday
 								<form action="http://0.0.0.0:5000/form" method="POST" class="hotel-search-form">
 									<div class="tm-form-inner">
 							          	<div class="form-group">
-							                <div class='input-group date' id='datetimepicker1'>
+							                <div id='location'>
 												<label for="Autocomplete"></label>
 							                    <input type='text' name ='starting_location' id="Autocomplete" class="form-control" placeholder="Enter Starting Location:" ng-autocomplete="result1" details="details1" options="options1"/>
 							                    <span class="input-group-addon">
@@ -104,7 +104,7 @@ http://www.templatemo.com/tm-475-holiday
 							                </div>
 							            </div>
 							          	<div class="form-group">
-							                <div class='input-group date' id='datetimepicker2'>
+							                <div  id='location'>
 							                    <label for="Autocomplete"></label>
 												<input type='text' name='first' id="Autocomplete" class="form-control" placeholder="Enter Location:" ng-autocomplete="result1" details="details1" options="options1"/>
 							                    <span class="input-group-addon">
@@ -114,7 +114,7 @@ http://www.templatemo.com/tm-475-holiday
 										
 										
 							          	<div class="form-group">
-							                <div class='input-group date' id='datetimepicker3' style="display: none;">
+							                <div  id='datetimepicker3' style="display: none;">
 							                    <label for="Autocomplete"></label>
 												<input type='text' name ='second' id="Autocomplete" class="form-control" placeholder="Enter Location:" ng-autocomplete="result1" details="details1" options="options1"/>
 							                    
@@ -122,7 +122,7 @@ http://www.templatemo.com/tm-475-holiday
 							            </div>
 										
 							          	<div class="form-group">
-							                <div class='input-group date' id='datetimepicker4' style="display: none;">
+							                <div  id='datetimepicker4' style="display: none;">
 							                    <label for="Autocomplete"></label>
 												<input type='text' name ='third' id="Autocomplete" class="form-control" placeholder="Enter Location:" ng-autocomplete="result1" details="details1" options="options1"/>
 							                </div>
@@ -130,14 +130,14 @@ http://www.templatemo.com/tm-475-holiday
 										
 										
 							          	<div class="form-group">
-							                <div class='input-group date' id='datetimepicker5' style="display: none;">
+							                <div id='datetimepicker5' style="display: none;">
 							                    <label for="Autocomplete"></label>
 												<input type='text' name='fourth' id="Autocomplete" class="form-control" placeholder="Enter Location:" ng-autocomplete="result1" details="details1" options="options1"/>
 							                </div>
 							            </div>
 										
 							          	<div class="form-group">
-							                <div class='input-group date' id='datetimepicker6' style="display: none;">
+							                <div  id='datetimepicker6' style="display: none;">
 							                    <label for="Autocomplete"></label>
 												<input type='text' name='fifth' id="Autocomplete" class="form-control" placeholder="Enter Location:" ng-autocomplete="result1" details="details1" options="options1"/>
 							                </div>
@@ -209,22 +209,22 @@ http://www.templatemo.com/tm-475-holiday
 
 			<div class="col-lg-4 col-md-4 col-sm-6">
 				<div class="tm-home-box-1 tm-home-box-1-2 tm-home-box-1-center">
-					<img src="{{ url_for('static',filename='img/lyft.png') }}" alt="image" class="img-responsive">
+					<img src="{{ url_for('static',filename='img/lyft.jpg.png') }}" height=346px width=346px alt="image">
 					<a href="#">
-						<div class="tm-green-gradient-bg tm-city-price-container">
-							<span>{{LYFT_PATH}}</span>
-							<span>${{LYFT_COST}}</span>
+						<div color: #000 tm-city-price-container">
+							<span><p><b> LYFT_PATH {{LYFT_PATH}}<p></span>
+							<span><p><b> LYFT_COST: ${{LYFT_COST}}<p></span>
 						</div>	
 					</a>			
 				</div>				
 			</div>
 			<div class="col-lg-4 col-md-4 col-sm-6">
 				<div class="tm-home-box-1 tm-home-box-1-2 tm-home-box-1-right">
-					<img src="{{ url_for('static',filename='img/uber.jpg') }}" alt="image" class="img-responsive">
+					<img src="{{ url_for('static',filename='img/uber.jpg') }}" alt="image" height=346px width=346px>
 					<a href="#">
-						<div class="tm-red-gradient-bg tm-city-price-container">
-							<span>{{UBER_PATH}}</span>
-							<span>${{UBER_COST}}</span>
+						<div tm-city-price-container" background: rgba(147,206,222,1)>
+							<span><p><b> UBER_PATH {{UBER_PATH}}</span>
+							<span><p><b> UBER_COST: ${{UBER_COST}}</span>
 						</div>	
 					</a>					
 				</div>				

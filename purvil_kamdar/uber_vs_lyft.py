@@ -20,6 +20,9 @@ lyft_roundtrip={}
 uber_roundtrip={}
 check_roundtrip=False
 
+@app.route('/')
+def indexpage():
+    return render_template('index.html', LYFT_COST=0.0, LYFT_PATH="lyft", UBER_COST=0.0, UBER_PATH="uber")
 @app.route('/form', methods=['POST'])
 def form_matrix():
     global lyft_string

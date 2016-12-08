@@ -9,7 +9,6 @@ from flask import request
 from flask import Response
 from flask import json
 from requests.auth import HTTPBasicAuth
-import numpy as np
 from collections import OrderedDict
 app=Flask(__name__)
 
@@ -75,29 +74,36 @@ def store_locations():
 
     coordinates = obj1.get_coordinates(parameters)
 
-    # Mongo Insert here
+    if coordinates == None:
 
-    latlong = coordinates.split(",")
+        return Response(response = json.dumps({"status" : "Invalid Address"}, cls=Encoder))
+    else:
+        # Mongo Insert here
+
+        latlong = coordinates.split(",")
 
 
 
-    coordinate = {}
-    coordinate["lat"] = latlong[0]
-    coordinate["lng"] = latlong[1]
+        coordinate = {}
+        coordinate["lat"] = latlong[0]
+        coordinate["lng"] = latlong[1]
 
-    responseData = {}
-    responseData["id"] =  str(uuid.uuid1())
-    responseData["address"] = address
-    responseData["city"] = city
-    responseData["state"] = state
-    responseData["zip"] = zipcode
-    responseData["coordinate"] = coordinate
-    responseData["name"] = name
+        responseData = {}
+        responseData["id"] =  str(uuid.uuid1())
+        responseData["address"] = address
+        responseData["city"] = city
+        responseData["state"] = state
+        responseData["zip"] = zipcode
+        responseData["coordinate"] = coordinate
+        responseData["name"] = name
 
-    insertData = responseData
-    inserted_id = locationsCollection.insert_one(insertData).inserted_id
+        insertData = responseData
+        inserted_id = locationsCollection.insert_one(insertData).inserted_id
 
-    return Response(response = json.dumps(responseData, cls=Encoder))
+        return Response(response = json.dumps(responseData, cls=Encoder))
+    
+
+    
 
 @app.route('/locations/<locationId>', methods=['GET'])
 def fetchLocation(locationId):
@@ -412,7 +418,7 @@ class UbervsLyft:
         geo_json=requests.get(url)
         geo_json=geo_json.json()
         if geo_json['status']=="ZERO_RESULTS":
-            return "Error"
+            return None
         geo_coord=geo_json['results']
         geo_co=geo_coord[0]['geometry']
         co=geo_co['location']
@@ -716,5 +722,5 @@ class UbervsLyft:
 
 
 if __name__ == '__main__':
-	app.run(host='localhost', debug=True)
+	app.run(host='localhost',port=3000, debug=True)
 

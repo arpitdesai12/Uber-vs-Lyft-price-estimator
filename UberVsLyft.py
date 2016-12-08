@@ -8,6 +8,7 @@ from flask import jsonify
 from flask import request
 from flask import Response
 from flask import json
+from flask import render_template
 from requests.auth import HTTPBasicAuth
 from collections import OrderedDict
 app=Flask(__name__)
@@ -52,7 +53,7 @@ class Encoder(json.JSONEncoder):
 
 @app.route('/', methods=['GET'])
 def loadIndex():
-    a=1;
+    return render_template("index.html")
     
 @app.route('/locations', methods=['POST'])
 def store_locations():
@@ -272,7 +273,7 @@ def form_matrix():
         location_counter=location_counter+1
         starting_location_parameters=obj.url_parameters(starting_location)
         starting_location_coordinates=obj.get_coordinates(starting_location_parameters)
-        if starting_location_coordinates=="Error":
+        if starting_location_coordinates==None:
             #print "starting location"
             return "Invalid Address"
         co_ordinates_dict[starting_location]=starting_location_coordinates
@@ -281,7 +282,7 @@ def form_matrix():
         location_counter=location_counter+1
         first_location_parameters=obj.url_parameters(first_location)
         first_location_coordinates=obj.get_coordinates(first_location_parameters)
-        if first_location_coordinates=="Error":
+        if first_location_coordinates==None:
             #print "1st location"
             return "Invalid Address"
         co_ordinates_dict[first_location]=first_location_coordinates
@@ -290,7 +291,7 @@ def form_matrix():
         location_counter=location_counter+1
         second_location_parameters=obj.url_parameters(second_location)
         second_location_coordinates=obj.get_coordinates(second_location_parameters)
-        if second_location_coordinates=="Error":
+        if second_location_coordinates==None:
             #print "2nd location"
             return "Invalid Address"
         co_ordinates_dict[second_location]=second_location_coordinates
@@ -299,7 +300,7 @@ def form_matrix():
         location_counter=location_counter+1
         third_location_parameters=obj.url_parameters(third_location)
         third_location_coordinates=obj.get_coordinates(third_location_parameters)
-        if third_location_coordinates=="Error":
+        if third_location_coordinates==None:
             #print "3rd location"
             return "Invalid Address"
         co_ordinates_dict[third_location]=third_location_coordinates
@@ -308,7 +309,7 @@ def form_matrix():
         location_counter=location_counter+1
         fourth_location_parameters=obj.url_parameters(fourth_location)
         fourth_location_coordinates=obj.get_coordinates(fourth_location_parameters)
-        if fourth_location_coordinates=="Error":
+        if fourth_location_coordinates==None:
             #print "4th location"
             return "Invalid Address"
         co_ordinates_dict[fourth_location]=fourth_location_coordinates
@@ -317,7 +318,7 @@ def form_matrix():
         location_counter=location_counter+1
         fifth_location_parameters=obj.url_parameters(fifth_location)
         fifth_location_coordinates=obj.get_coordinates(fifth_location_parameters)
-        if fifth_location_coordinates=="Error":
+        if fifth_location_coordinates==None:
             #print "5th location"
             return "Invalid Address"
         co_ordinates_dict[fifth_location]=fifth_location_coordinates
@@ -396,7 +397,11 @@ def form_matrix():
     del ubermatrix1[:]
     del ubermatrix2[:]
     co_ordinates_dict.clear()
-    return result_string
+    
+    
+    r = json.dumps(result_string, cls=Encoder)
+    print(r)
+    return render_template('index.html', res=r);
     
     
 class UbervsLyft:
@@ -722,5 +727,5 @@ class UbervsLyft:
 
 
 if __name__ == '__main__':
-	app.run(host='localhost',port=3000, debug=True)
+	app.run(host='0.0.0.0',port=3000, debug=True)
 
